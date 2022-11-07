@@ -1,0 +1,21 @@
+from odoo.http import route, Controller
+from odoo_tools.orm import fields, ApiModel
+
+{% for key, model in api.components.schemas.items() %}{% if key in models %}
+class {{key}}(ApiModel):
+    """
+    {{(model.description or '').replace('\n', '\n    ')}}"""
+{% for prop, field in model.properties.items() %}
+    {% if field.type != 'array' -%}
+    {{prop}} = fields.{{field.type.capitalize()}}(
+        string={{repr(field.title)}}
+    )
+    {%- else -%}
+    {{prop}} = fields.{{field.type.capitalize()}}(
+        string={{repr(field.title)}},
+        model={% if field.items.type == 'object' %}{{field.items.path[-1]}}{% else %}fields.{{ field.items.type.capitalize() }}{% endif %}
+    )
+    {%- endif %}
+{% endfor %}
+{%- endif -%}
+{% endfor %}
