@@ -19,8 +19,16 @@ def get_document(url, path):
 
 
 @click.command()
-@click.option('url')
-@click.option('path')
+@click.option('--url')
+@click.option('--path')
 def rest(url, path):
     document = get_document(url, path)
     api = OpenAPI(document)
+
+    with (Path.cwd() / 'api.yaml').open('w') as fout:
+        data = yaml.safe_dump(
+            document, allow_unicode=True, default_flow_style=False
+        )
+        fout.write(data)
+
+    print(api)
