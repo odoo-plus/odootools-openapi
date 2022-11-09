@@ -1,5 +1,5 @@
 from odoo.http import route, Controller
-from odoo_tools.orm import fields, ApiModel
+from odoo_tools_rest.orm import fields, ApiModel
 
 {% for key, model in api.components.schemas.items() %}{% if key in models %}
 class {{key}}(ApiModel):
