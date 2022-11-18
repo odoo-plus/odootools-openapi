@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="odoo-tools-rest",
+    name="odoo-tools-openapi",
     version="0.1.0",
     author="Loïc Faure-Lacroix <lamerstar@gmail.com>",
     author_email="lamerstar@gmail.com",
@@ -57,7 +57,7 @@ setuptools.setup(
     python_requires='>=3.6',
     entry_points={
         "odootools.command.ext": [
-            "gen = odoo_tools_rest.command:rest"
+            "gen = odoo_tools_openapi.command:openapi"
         ]
     },
     package_data={

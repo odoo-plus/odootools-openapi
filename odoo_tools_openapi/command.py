@@ -21,7 +21,7 @@ def get_document(url, path):
 @click.command()
 @click.option('--url')
 @click.option('--path')
-def rest(url, path):
+def openapi(url, path):
     document = get_document(url, path)
     api = OpenAPI(document)
 
