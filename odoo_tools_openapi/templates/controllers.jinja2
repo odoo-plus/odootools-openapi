@@ -11,14 +11,14 @@ from ..api_models.{{request.path[-1].lower()}} import {{request.path[-1]}}
 {% for key, routes in controllers.items() %}
 class {{key.capitalize()}}Controller(Controller):
     """{{tags[key].description}}"""
-    {% for path, method, route, path_obj, security, request in routes %}
+    {% for route in routes %}
     @route(
-        route={{repr(path)}},
-        methods=[{{repr(method.upper())}}],
-        csrf=False,
-        type={{repr(path_obj.extensions['route-type']) if 'route-type' in path_obj.extensions else repr('plainjson')}}
-        {% if len(security) > 0 and 'auth-name' in security[0][1].extensions -%}
-            auth={{repr(security[0][1].extensions['auth-name'])}},
+        route={{repr(route.path)}},
+        methods=[{{repr(route.method.upper())}}],
+        csrf={{repr(route.csrf)}},
+        type={{repr(route.type)}}
+        {% if route.auth -%}
+            auth={{repr(route.auth)}},
         {%- endif %}
     )
     def {{route.operationId}}(self{% for param in path_obj.parameters %}, {{param.name}}{% endfor %}):

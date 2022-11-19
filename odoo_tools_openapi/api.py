@@ -4,37 +4,11 @@ from jinja2 import Environment, BaseLoader, TemplateNotFound
 from os.path import getmtime
 from pathlib import Path
 
+from .utils import format_param, deref, iter_attrib, ext
+# from .objects import Security, Route
 
-TYPE_MAP = {
-    "integer": "int",
-}
 
 METHODS = ['get', 'delete', 'post', 'head', 'put']
-
-
-def map_type(type_name):
-    if type_name in TYPE_MAP:
-        return TYPE_MAP[type_name]
-    return type_name
-
-
-def format_param(api, param):
-    type_format = map_type(param.schema.type)
-
-    if 'model' in param.extensions:
-        ref = deref(api)(param.extensions['model']['$ref'])
-        model_name = ref.extensions['model']
-        type_format = "model({})".format(repr(model_name))
-
-    param_name = param.name
-
-    return '<{}:{}>'.format(type_format, param_name)
-
-
-def deref(api):
-    def dereference(path):
-        return api._root.resolve_path(path.split('/')[1:])
-    return dereference
 
 
 def get_request_object(route):
@@ -45,40 +19,57 @@ def get_request_object(route):
         return None
 
 
-def get_controllers(api):
-    controllers = defaultdict(list)
+#   def get_security_schemes(api, obj):
+#       securities = {}
+#
+#       for security in obj.security:
+#           name = security.name
+#           scheme = api.components.securitySchemes[name]
+#
+#           sec = Security(
+#               name,
+#               scheme.type,
+#               scheme.scheme,
+#               ext(scheme, 'auth-name', 'none'),
+#           )
+#
+#           securities[name] = sec
+#
+#       return securities
 
-    for route_path, path in api.paths.items():
-        for method in METHODS:
-            route_obj = getattr(path, method)
-            if not route_obj:
-                continue
 
-            if route_obj.tags:
-                path_params = {
-                    param.name: format_param(api, param)
-                    for param in path.parameters
-                    if param.in_ == 'path'
-                }
-
-                security = []
-                for sec in route_obj.security or []:
-                    scheme = api.components.securitySchemes[sec.name]
-                    security.append((sec, scheme))
-
-                route_path = route_path.format(**path_params)
-                request_obj = get_request_object(route_obj)
-
-                controllers[route_obj.tags[0]].append((
-                    route_path,
-                    method,
-                    route_obj,
-                    path,
-                    security,
-                    request_obj
-                ))
-
-    return controllers
+#   def get_controllers(api):
+#       controllers = defaultdict(list)
+#
+#       for route_path, path in api.paths.items():
+#           for method, route_obj in iter_attrib(path, METHODS):
+#               if not route_obj.tags:
+#                   continue
+#
+#               path_params = {
+#                   param.name: format_param(api, param)
+#                   for param in path.parameters
+#                   if param.in_ == 'path'
+#               }
+#
+#               security = get_security_schemes(api, route_obj)
+#
+#               route_path = route_path.format(**path_params)
+#               request_obj = get_request_object(route_obj)
+#
+#               route = Route(
+#                   path=route_path,
+#                   method=method,
+#                   type=ext(route_obj, 'router-type', 'plainjson'),
+#                   csrf=False,
+#                   auth=ext(route_obj, 'auth-name'),
+#                   security=security,
+#                   request=request_obj
+#               )
+#
+#               controllers[route_obj.tags[0]].append(route)
+#
+#       return controllers
 
 
 class Loader(BaseLoader):
