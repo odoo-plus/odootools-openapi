@@ -18,22 +18,13 @@ setuptools.setup(
     },
     packages=setuptools.find_packages(),
     install_requires=[
-        "giturlparse",
-        "toposort",
+        "openapi3",
         "toml",
         "requests",
         "packaging",
-        "lxml",
-        "docutils",
-        "polib",
         "six>=1.12.0",
-        "cryptography",
         "click",
-        "passlib",
-        "ptpython",
         "pip>=10.0",
-        "password-strength",
-        "psycopg2"
     ],
     extras_require={
         "docs": [
