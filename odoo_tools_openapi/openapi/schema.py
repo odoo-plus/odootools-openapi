@@ -4,4 +4,4 @@ class SchemaObject(object):
 
 class Controller(object):
     def __init__(self, routes):
-
+        pass
