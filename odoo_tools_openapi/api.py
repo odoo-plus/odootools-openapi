@@ -107,111 +107,111 @@ def get_rendering_context(api, controllers, tags, models):
     return vals
 
 
-@click.command('model')
-@click.argument('model')
-@click.pass_context
-def model(ctx, model):
-    api = ctx.obj
-    env = Environment(loader=Loader(Path.cwd()))
-    controllers = get_controllers(api)
-    tags = {
-        tag.name: tag
-        for tag in api.tags
-    }
-    template = env.get_template('models.jinja2')
-    print(template.render(**get_rendering_context(api, controllers, tags, models=[model])))
+#   @click.command('model')
+#   @click.argument('model')
+#   @click.pass_context
+#   def model(ctx, model):
+#       api = ctx.obj
+#       env = Environment(loader=Loader(Path.cwd()))
+#       controllers = get_controllers(api)
+#       tags = {
+#           tag.name: tag
+#           for tag in api.tags
+#       }
+#       template = env.get_template('models.jinja2')
+#       print(template.render(**get_rendering_context(api, controllers, tags, models=[model])))
 
 
-@click.command('controller')
-@click.argument('controller')
-@click.pass_context
-def controller(ctx, controller):
-    api = ctx.obj
-    env = Environment(loader=Loader(Path.cwd()))
-    controllers = get_controllers(api)
-    tags = {
-        tag.name: tag
-        for tag in api.tags
-    }
-    template = env.get_template('controllers.jinja2')
-    controllers = {
-        key: value
-        for key, value in controllers.items()
-        if key == controller
-    }
-    print(
-        template.render(
-            **get_rendering_context(api, controllers, tags, models=[])
-        )
-    )
+#  @click.command('controller')
+#  @click.argument('controller')
+#  @click.pass_context
+#  def controller(ctx, controller):
+#      api = ctx.obj
+#      env = Environment(loader=Loader(Path.cwd()))
+#      controllers = get_controllers(api)
+#      tags = {
+#          tag.name: tag
+#          for tag in api.tags
+#      }
+#      template = env.get_template('controllers.jinja2')
+#      controllers = {
+#          key: value
+#          for key, value in controllers.items()
+#          if key == controller
+#      }
+#      print(
+#          template.render(
+#              **get_rendering_context(api, controllers, tags, models=[])
+#          )
+#      )
 
 
-@click.command('module')
-@click.argument('module')
-@click.pass_context
-def module(ctx, module):
-    module_path = Path.cwd() / module
-
-    module_path.mkdir()
-
-    controllers_path = module_path / 'controllers'
-    api_models = module_path / 'api_models'
-
-    controllers_path.mkdir()
-    api_models.mkdir()
-
-    api = ctx.obj
-    env = Environment(loader=Loader(Path.cwd()))
-
-    tags = {
-        tag.name: tag
-        for tag in api.tags
-    }
-
-    controllers = get_controllers(api)
-    template = env.get_template('controllers.jinja2')
-
-    def gen_init(path, modules):
-        with path.open('w') as fout:
-            for module in modules:
-                fout.write(f"from . import {module}\n")
-
-    import_modules = []
-
-    for key, item in controllers.items():
-        controller_file = template.render(
-            **get_rendering_context(
-                api,
-                {key: item},
-                tags,
-                models=[]
-            )
-        )
-
-        controller_path = controllers_path / f"{key.lower()}.py"
-        with controller_path.open('w') as fout:
-            fout.write(controller_file)
-
-        import_modules.append(key.lower())
-
-    controllers_import = controllers_path / "__init__.py"
-    gen_init(controllers_import, import_modules)
-    template = env.get_template('models.jinja2')
-
-    import_modules = []
-    for model in api.components.schemas.keys():
-        model_file = api_models / f"{model.lower()}.py"
-
-        model_data = template.render(
-            **get_rendering_context(
-                api, controllers, tags, models=[model]
-            )
-        )
-
-        with model_file.open("w") as fout:
-            fout.write(model_data)
-
-        import_modules.append(model.lower())
-
-    controllers_import = api_models / "__init__.py"
-    gen_init(controllers_import, import_modules)
+# @click.command('module')
+# @click.argument('module')
+# @click.pass_context
+# def module(ctx, module):
+#     module_path = Path.cwd() / module
+#
+#     module_path.mkdir()
+#
+#     controllers_path = module_path / 'controllers'
+#     api_models = module_path / 'api_models'
+#
+#     controllers_path.mkdir()
+#     api_models.mkdir()
+#
+#     api = ctx.obj
+#     env = Environment(loader=Loader(Path.cwd()))
+#
+#     tags = {
+#         tag.name: tag
+#         for tag in api.tags
+#     }
+#
+#     controllers = get_controllers(api)
+#     template = env.get_template('controllers.jinja2')
+#
+#     def gen_init(path, modules):
+#         with path.open('w') as fout:
+#             for module in modules:
+#                 fout.write(f"from . import {module}\n")
+#
+#     import_modules = []
+#
+#     for key, item in controllers.items():
+#         controller_file = template.render(
+#             **get_rendering_context(
+#                 api,
+#                 {key: item},
+#                 tags,
+#                 models=[]
+#             )
+#         )
+#
+#         controller_path = controllers_path / f"{key.lower()}.py"
+#         with controller_path.open('w') as fout:
+#             fout.write(controller_file)
+#
+#         import_modules.append(key.lower())
+#
+#     controllers_import = controllers_path / "__init__.py"
+#     gen_init(controllers_import, import_modules)
+#     template = env.get_template('models.jinja2')
+#
+#     import_modules = []
+#     for model in api.components.schemas.keys():
+#         model_file = api_models / f"{model.lower()}.py"
+#
+#         model_data = template.render(
+#             **get_rendering_context(
+#                 api, controllers, tags, models=[model]
+#             )
+#         )
+#
+#         with model_file.open("w") as fout:
+#             fout.write(model_data)
+#
+#         import_modules.append(model.lower())
+#
+#     controllers_import = api_models / "__init__.py"
+#     gen_init(controllers_import, import_modules)
