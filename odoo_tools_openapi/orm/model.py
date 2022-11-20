@@ -31,22 +31,24 @@ class PropertyLister(object):
 
     @classmethod
     def __get_properties(cls):
-        for base in cls.mro()[1:]:
+        properties = set()
+
+        for base in cls.__bases__:
             if (
                 issubclass(base, PropertyLister) and
                 base is not PropertyLister
             ):
-                break
-        else:
-            base = None
+                properties = properties.union(
+                    base.properties
+                )
 
-        base_set = base.properties if base else set()
-
-        return base_set.union(set([
+        properties = properties.union(set([
             name
             for name, prop in cls.__dict__.items()
             if isinstance(prop, BaseField)
         ]))
+
+        return properties
 
 
 class JsonSerializable(PropertyLister):
