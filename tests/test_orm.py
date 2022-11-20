@@ -90,3 +90,25 @@ def test_json_serializer_to_json():
 
     obj = AB.parse({"a": "aa"})
     assert obj.to_json() == {"a": "aa", "b": None}
+
+
+class test_api_model():
+    prop1 = String()
+    prop2 = String()
+
+    props = {
+        "a": prop1,
+        "b": prop2,
+    }
+
+    AB = type('AB', (ApiModel,), props)
+
+    obj = AB.parse({})
+    assert obj.a is None
+    obj.a = "fun"
+    assert obj.a == "fun"
+    assert obj._values.get('a') == "fun"
+    del obj.a
+    assert hasattr(obj, 'a')
+    assert obj.a == None
+    assert obj._values.get('a') is None
