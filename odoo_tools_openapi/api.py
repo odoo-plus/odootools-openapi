@@ -1,8 +1,9 @@
-import click
-from collections import defaultdict
-from jinja2 import Environment, BaseLoader, TemplateNotFound
+# import click
+# from collections import defaultdict
+# from jinja2 import Environment, BaseLoader, TemplateNotFound
+from jinja2 import BaseLoader, TemplateNotFound
 from os.path import getmtime
-from pathlib import Path
+# from pathlib import Path
 
 # from .utils import format_param, deref, iter_attrib, ext
 # from .objects import Security, Route
@@ -92,19 +93,19 @@ class Loader(BaseLoader):
         )
 
 
-def get_rendering_context(api, controllers, tags, models):
-    vals = dict(
-        api=api,
-        controllers=controllers,
-        repr=repr,
-        len=len,
-        tags=tags,
-        deref=deref(api),
-        get_request_object=get_request_object,
-        models=models
-    )
-
-    return vals
+#    def get_rendering_context(api, controllers, tags, models):
+#        vals = dict(
+#            api=api,
+#            controllers=controllers,
+#            repr=repr,
+#            len=len,
+#            tags=tags,
+#            deref=deref(api),
+#            get_request_object=get_request_object,
+#            models=models
+#        )
+# 
+#        return vals
 
 
 #   @click.command('model')
