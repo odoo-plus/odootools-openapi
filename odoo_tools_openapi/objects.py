@@ -1,15 +1,47 @@
 from openapi3 import OpenAPI
-from collections import defaultdict
+# from collections import defaultdict
 
 from .api import METHODS
 from .utils import iter_attrib, ext, map_type
 
 
 class Controller(object):
-    def __init__(self, name, description):
+    def __init__(self, api, name, description):
+        self.api = api
         self.name = name
         self.description = description
         self.routes = []
+
+    def add_route(self, path, route, method):
+        path_params = {
+            param.name: self.format_param(param)
+            for param in path.parameters
+            if param.in_ == 'path'
+        }
+
+        securities = self.get_security_schemes(route)
+
+        auth = [security.auth for security in securities.values()]
+        if auth:
+            auth = ext(auth.pop(), 'auth-name')
+        else:
+            auth = 'none'
+
+        # route_path = route_path.format(**path_params)
+        # request_obj = get_request_object(route_obj)
+        route_path = path.path[-1]
+        request_obj = None
+
+        route = Route(
+            path=route_path,
+            params=path_params,
+            method=method,
+            type=ext(route, 'router-type', 'plainjson'),
+            csrf=False,
+            auth=auth,
+            security=securities,
+            request=request_obj
+        )
 
 
 class Route(object):
@@ -82,46 +114,29 @@ class OdooApi(object):
 
         paths = self.api.paths or {}
 
+        controllers['default'] = Controller(
+            self,
+            'default',
+            'Default Controller'
+        )
+
         for tag in self.get_tags():
-            controller = Controller(tag.name, tag.description)
+            controller = Controller(self, tag.name, tag.description)
             controllers[tag.name] = controller
 
         for route_path, path in paths.items():
-            for method, route_obj in iter_attrib(path, METHODS):
-                if not route_obj.tags:
-                    continue
+            for method, route in iter_attrib(path, METHODS):
+                tags = []
 
-                path_params = {
-                    param.name: self.format_param(param)
-                    for param in path.parameters
-                    if param.in_ == 'path'
-                }
-
-                securities = self.get_security_schemes(route_obj)
-
-                auth = [security.auth for security in securities.values()]
-                if auth:
-                    auth = ext(auth.pop(), 'auth-name')
+                if not route.tags:
+                    tags.append('default')
                 else:
-                    auth = 'none'
+                    tags += route.tags
 
-                route_path = route_path.format(**path_params)
-                # request_obj = get_request_object(route_obj)
-                request_obj = None
-
-                route = Route(
-                    path=route_path,
-                    params=path_params,
-                    method=method,
-                    type=ext(route_obj, 'router-type', 'plainjson'),
-                    csrf=False,
-                    auth=auth,
-                    security=securities,
-                    request=request_obj
-                )
-
-                for tag in route_obj.tags:
-                    controllers[tag].routes.append(route)
+                for tag in tags:
+                    controller[tag].add_route(
+                        path, route, method
+                    )
 
         return controllers
 
