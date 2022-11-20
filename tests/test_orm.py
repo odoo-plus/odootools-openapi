@@ -1,4 +1,4 @@
-from odoo_tools_openapi.orm.model import ApiModel, PropertyLister, JsonSerializable, MetaModel
+from odoo_tools_openapi.orm.model import ApiModel, PropertyLister, JsonSerializable, MetaModel, DataStore
 from odoo_tools_openapi.orm.fields import String
 
 
@@ -46,3 +46,47 @@ def test_model_properties_empty():
     # Test new class inheriting a class without own properties
     # but inherited ones
     assert NM8.properties == {'a', 'b', 'c', 'd', 'e'}
+
+
+def test_json_serializer_parse():
+    prop1 = String()
+    prop2 = String()
+
+    props = {
+        "a": prop1,
+        "b": prop2,
+        "_values": DataStore()
+    }
+
+    AB = type('AB', (JsonSerializable,), props)
+
+    obj = AB.parse({})
+
+    assert obj.a is None
+    assert obj.b is None
+
+    obj = AB.parse({"a": "aa", "b": "bb"})
+    assert obj.a == "aa"
+    assert obj.b == "bb"
+
+
+def test_json_serializer_to_json():
+    prop1 = String()
+    prop2 = String()
+
+    props = {
+        "a": prop1,
+        "b": prop2,
+        "_values": DataStore()
+    }
+
+    AB = type('AB', (JsonSerializable,), props)
+
+    obj = AB.parse({})
+    assert obj.to_json() == {"a": None, "b": None}
+
+    obj = AB.parse({"a": "aa", "b": "bb"})
+    assert obj.to_json() == {"a": "aa", "b": "bb"}
+
+    obj = AB.parse({"a": "aa"})
+    assert obj.to_json() == {"a": "aa", "b": None}
