@@ -4,7 +4,7 @@ from jinja2 import Environment, BaseLoader, TemplateNotFound
 from os.path import getmtime
 from pathlib import Path
 
-from .utils import format_param, deref, iter_attrib, ext
+# from .utils import format_param, deref, iter_attrib, ext
 # from .objects import Security, Route
 
 
