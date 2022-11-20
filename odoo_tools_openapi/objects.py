@@ -14,17 +14,17 @@ class Controller(object):
 
     def add_route(self, path, route, method):
         path_params = {
-            param.name: self.format_param(param)
+            param.name: self.api.format_param(param)
             for param in path.parameters
             if param.in_ == 'path'
         }
 
-        securities = self.get_security_schemes(route)
+        securities = self.api.get_security_schemes(route)
 
         auth = [security.auth for security in securities.values()]
         if auth:
-            auth = ext(auth.pop(), 'auth-name')
-        else:
+            auth = auth.pop()
+        if not auth:
             auth = 'none'
 
         # route_path = route_path.format(**path_params)
@@ -42,6 +42,8 @@ class Controller(object):
             security=securities,
             request=request_obj
         )
+
+        self.routes.append(route)
 
 
 class Route(object):
@@ -134,7 +136,7 @@ class OdooApi(object):
                     tags += route.tags
 
                 for tag in tags:
-                    controller[tag].add_route(
+                    controllers[tag].add_route(
                         path, route, method
                     )
 

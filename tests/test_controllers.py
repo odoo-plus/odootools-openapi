@@ -63,7 +63,7 @@ def test_controller_tags(basic_document):
 
     api = OdooApi(doc)
 
-    assert len(api.controllers) == 2
+    assert len(api.controllers) == 3
     assert api.controllers['project'].description == "Projects"
     assert api.controllers['instance'].description == "Instances"
     assert len(api.controllers['project'].routes) == 0
@@ -76,7 +76,7 @@ def test_controllers_parsed(basic_document):
 
     api = OdooApi(doc)
 
-    assert len(api.controllers) == 2
+    assert len(api.controllers) == 3
 
     project_ctl = api.controllers['project']
     assert len(project_ctl.routes) == 2
