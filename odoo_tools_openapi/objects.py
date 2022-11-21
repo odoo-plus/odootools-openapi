@@ -102,17 +102,6 @@ class Route(object):
         return self._params.to_json()
 
 
-class Schemas(object):
-    def __init__(self, name, properties):
-        self.name = name
-        self.properties = properties
-
-
-class ApiDocuent(object):
-    def __init__(self, api):
-        self.api = api
-
-
 class Security(object):
     def __init__(self, name, type, scheme, auth):
         self.name = name
@@ -128,7 +117,6 @@ class OdooApi(object):
 
     def deref(self, reference):
         return self.api._root.resolve_path(reference.split('/')[1:])
-
 
     def get_tags(self):
         tags = self.api.tags or []
