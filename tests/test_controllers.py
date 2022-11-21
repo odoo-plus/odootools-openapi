@@ -22,6 +22,20 @@ tags:
     - name: instance
       description: Instances
 
+components:
+  schemas:
+    User:
+      type: object
+      description: A User object
+      x-model: res.user
+      properties:
+        id:
+          type: int
+          title: The User's ID
+        name:
+          type: string
+          title: The User's name
+
 paths:
   /projects:
     get:
@@ -41,6 +55,13 @@ paths:
        - name: project
          in: path
          required: true
+         schema:
+           type: integer
+       - name: user
+         in: query
+         required: false
+         x-model:
+           $ref: "#/components/schemas/User"
          schema:
            type: integer
     get:
@@ -91,4 +112,7 @@ def test_controllers_parsed(basic_document):
 
     route2 = project_ctl.routes[1]
 
-    assert route2.params == {'project': '<int:project>'}
+    assert route2.params == {
+        'project': '<int:project>',
+        "user": "<model('res.user'):user>"
+    }
