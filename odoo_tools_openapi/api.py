@@ -1,8 +1,6 @@
 # import click
 # from collections import defaultdict
 # from jinja2 import Environment, BaseLoader, TemplateNotFound
-from jinja2 import BaseLoader, TemplateNotFound
-from os.path import getmtime
 # from pathlib import Path
 
 # from .utils import format_param, deref, iter_attrib, ext
@@ -73,24 +71,6 @@ def get_request_object(route):
 #       return controllers
 
 
-class Loader(BaseLoader):
-    def __init__(self, path):
-        self.path = path
-
-    def get_source(self, environment, template):
-        template_path = self.path / template
-        if not template_path.exists():
-            raise TemplateNotFound(template)
-
-        mtime = getmtime(template_path)
-
-        source = template_path.open().read()
-
-        return (
-            source,
-            str(template_path),
-            lambda: mtime == getmtime(template_path)
-        )
 
 
 #    def get_rendering_context(api, controllers, tags, models):
