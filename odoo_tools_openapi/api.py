@@ -10,12 +10,12 @@
 METHODS = ['get', 'delete', 'post', 'head', 'put']
 
 
-def get_request_object(route):
-    try:
-        schema = route.requestBody.content['application/json'].schema
-        return schema
-    except Exception:
-        return None
+# def get_request_object(route):
+#     try:
+#         schema = route.requestBody.content['application/json'].schema
+#         return schema
+#     except Exception:
+#         return None
 
 
 #   def get_security_schemes(api, obj):

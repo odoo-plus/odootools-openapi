@@ -1,9 +1,9 @@
 from odoo.http import route, Controller
-{% for route in controller.routes -%}
-{%- if route.request_body -%}
-from ..api_models import {{route.request_body.name.lower()}} import {{route.request_body.name}}
-{%- endif -%}
-{%- endfor %}
+from odoo_tools_openapi.http import request
+
+{% for body in controller.route_bodies -%}
+from ..api_models import {{body.name.lower()}} import {{body.name}}
+{% endfor %}
 
 class {{controller.name.capitalize()}}(Controller):
     """
@@ -24,6 +24,17 @@ class {{controller.name.capitalize()}}(Controller):
         {{route.description}}
         """
     {%- if route.request_body %}
+        body = {{route.request_body.name}}.parse(request.jsonrequest)
+    {%- if route.response_body %}
+    {%- if route.response_model %}
+        ResponseModel = request.env[{{route.response_model | pprint}}]
+        obj = ResponseModel.browse([])
+    {% endif %}
+        resp = {{route.response_body.name}}.from_odoo(obj)
+        return resp.to_json()
+    {% else %}
+        return {}
+    {% endif -%}
     {% else %}
         pass
     {% endif -%}

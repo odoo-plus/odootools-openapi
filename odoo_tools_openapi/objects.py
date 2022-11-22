@@ -72,6 +72,52 @@ class Controller(object):
 
         self.routes.append(route)
 
+    @property
+    def route_bodies(self):
+        bodies = set()
+        for route in self.routes:
+            if route.request_body:
+                bodies.add(route.request_body)
+
+            if route.response_body:
+                bodies.add(route.response_body)
+
+            if route.error_body:
+                bodies.add(route.error_body)
+
+        return bodies
+
+
+class Schema(object):
+    def __init__(self, api, schema):
+        self.api = api
+        self.schema = schema
+
+    @property
+    def is_array(self):
+        return self.schema.type == 'array'
+
+    @property
+    def schema_object(self):
+        if self.is_array:
+            return self.schema.items
+        else:
+            return self.schema
+
+    @property
+    def name(self):
+        schema_type = self.schema_object
+        return schema_type.path[-1]
+
+    def __lt__(self, other):
+        return self.name < other.name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
 
 class Route(object):
     def __init__(
@@ -101,11 +147,7 @@ class Route(object):
 
     @property
     def type(self):
-        route_type = self._route.extensions.get('type')
-        if route_type:
-            return route_type
-        else:
-            return 'plainjson'
+        return ext(self._route, 'type', 'plainjson')
 
     @property
     def path(self):
@@ -128,6 +170,29 @@ class Route(object):
     @property
     def path_params(self):
         return self._params.path.to_json()
+
+    @property
+    def request_body(self):
+        try:
+            schema = self._route.requestBody.content['application/json'].schema
+            return Schema(self.api, schema)
+        except AttributeError:
+            return None
+
+    @property
+    def response_body(self):
+        schema = self._route.responses[200].content['application/json'].schema
+        return Schema(self.api, schema)
+
+    @property
+    def response_model(self):
+        return ext(self._route, 'response-model')
+
+    @property
+    def error_body(self):
+        responses = self._route.responses
+        schema = responses['default'].content['application/json'].schema
+        return Schema(self.api, schema)
 
 
 class Security(object):
