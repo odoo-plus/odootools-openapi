@@ -3,6 +3,7 @@ from openapi3 import OpenAPI
 
 from .api import METHODS
 from .utils import iter_attrib, ext, map_type
+from .format import pad_lines
 
 
 class Parameters(object):
@@ -33,6 +34,16 @@ class Parameters(object):
 
         return '<{}:{}>'.format(type_format, param_name)
 
+    @property
+    def path(self):
+        new_params = self.inherit()
+        new_params.parameters = [
+            param
+            for param in new_params.parameters
+            if param.in_ == 'path'
+        ]
+        return new_params
+
     def to_json(self):
         return {
             param.name: self.format_param(param)
@@ -44,7 +55,7 @@ class Controller(object):
     def __init__(self, api, name, description):
         self.api = api
         self.name = name
-        self.description = description
+        self.description = pad_lines(description, 4)
         self.routes = []
 
     def add_route(self, path, route, method, parameters):
@@ -78,28 +89,45 @@ class Route(object):
         self._route = route_obj
         self._params = params
         self.method = method
-        self.type = type
         self.csrf = csrf
+
+    @property
+    def description(self):
+        return pad_lines(self._route.description, 8)
 
     @property
     def securities(self):
         return self.api.get_security_schemes(self._route)
 
     @property
+    def type(self):
+        route_type = self._route.extensions.get('type')
+        if route_type:
+            return route_type
+        else:
+            return 'plainjson'
+
+    @property
     def path(self):
-        return self._path.path[-1]
+        return self._path.path[-1].format(
+            **self.path_params
+        )
 
     @property
     def auth(self):
         securities = self.securities
         if len(securities) > 0:
-            return securities.name
+            return securities.values()[0].name
         else:
             return 'none'
 
     @property
     def params(self):
         return self._params.to_json()
+
+    @property
+    def path_params(self):
+        return self._params.path.to_json()
 
 
 class Security(object):
@@ -159,7 +187,7 @@ class OdooApi(object):
         return controllers
 
     def get_security_schemes(self, obj):
-        securities = {}
+        securities = []
 
         for security in obj.security:
             name = security.name
@@ -172,6 +200,6 @@ class OdooApi(object):
                 ext(scheme, 'auth-name', 'none'),
             )
 
-            securities[name] = sec
+            securities.append(sec)
 
         return securities

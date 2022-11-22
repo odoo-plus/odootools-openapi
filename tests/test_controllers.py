@@ -65,6 +65,7 @@ paths:
          schema:
            type: integer
     get:
+      x-type: json
       tags:
         - project
       responses:
@@ -109,6 +110,7 @@ def test_controllers_parsed(basic_document):
     assert route.method == 'get'
     assert route.params == {}
     assert route.csrf is False
+    assert route.type == 'plainjson'
 
     route2 = project_ctl.routes[1]
 
@@ -116,3 +118,6 @@ def test_controllers_parsed(basic_document):
         'project': '<int:project>',
         "user": "<model('res.user'):user>"
     }
+
+    route2 = project_ctl.routes[1]
+    assert route2.type == 'json'

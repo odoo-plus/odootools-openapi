@@ -2,7 +2,9 @@ import click
 from pathlib import Path
 import requests
 import yaml
-from openapi3 import OpenAPI
+# from openapi3 import OpenAPI
+from .objects import OdooApi
+from .rendering import get_environment, get_rendering_context
 
 
 def get_document(url, path):
@@ -23,7 +25,11 @@ def get_document(url, path):
 @click.option('--path')
 def openapi(url, path):
     document = get_document(url, path)
-    api = OpenAPI(document)
+
+    api = OdooApi(document)
+    # api = OpenAPI(document)
+
+    env = get_environment()
 
     with (Path.cwd() / 'api.yaml').open('w') as fout:
         data = yaml.safe_dump(
@@ -31,4 +37,11 @@ def openapi(url, path):
         )
         fout.write(data)
 
+    tpl = env.get_template('controllers2.jinja2')
+
+    ctx = get_rendering_context()
+    ctx['api'] = api
+    ctx['controller'] = api.controllers['project']
+
+    print(tpl.render(**ctx))
     print(api)

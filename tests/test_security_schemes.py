@@ -54,7 +54,7 @@ def test_openapi_security(basic_document):
     sec = api.get_security_schemes(api.api)
     assert len(sec) == 1
 
-    sec = sec["management"]
+    sec = sec[0]
 
     assert sec.name == "management"
     assert sec.scheme == "Bearer"
@@ -65,7 +65,7 @@ def test_openapi_security(basic_document):
     sec = api.get_security_schemes(api.api.paths['/projects'].get)
     assert len(sec) == 1
 
-    sec = sec["management"]
+    sec = sec[0]
 
     assert sec.name == "management"
     assert sec.scheme == "Bearer"
@@ -74,6 +74,6 @@ def test_openapi_security(basic_document):
 
     sec = api.get_security_schemes(api.api.paths['/projects/2'].get)
     assert len(sec) == 1
-    sec = sec['m2']
+    sec = sec[0]
 
     assert sec.name == "m2"

@@ -1,0 +1,30 @@
+from odoo.http import route, Controller
+{% for route in controller.routes -%}
+{%- if route.request_body -%}
+from ..api_models import {{route.request_body.name.lower()}} import {{route.request_body.name}}
+{%- endif -%}
+{%- endfor %}
+
+class {{controller.name.capitalize()}}(Controller):
+    """
+    {{controller.description}}
+    """
+{% for route in controller.routes %}
+    @route(
+        route={{[route.path] | pprint}},
+        methods={{[route.method.upper()] | pprint}},
+        csrf={{route.csrf | pprint}},
+        type={{route.type | pprint}}{% if route.auth %},{% endif %}
+    {% if route.auth -%}
+        auth={{repr(route.auth)}},
+    {% endif -%}
+    )
+    def {{route._route.operationId}}(self{% for param in route.path_params.keys() %}, {{param}}{% endfor %}):
+        """
+        {{route.description}}
+        """
+    {%- if route.request_body %}
+    {% else %}
+        pass
+    {% endif -%}
+{% endfor %}

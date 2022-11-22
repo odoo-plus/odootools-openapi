@@ -38,3 +38,9 @@ def get_environment():
     )
 
     return env
+
+
+def get_rendering_context():
+    return {
+        "repr": repr,
+    }
