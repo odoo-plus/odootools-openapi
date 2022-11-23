@@ -1,0 +1,19 @@
+from odoo_tools_rest.orm import fields, ApiModel
+
+
+class {{model.name}}(ApiModel):
+    """
+    {{model.description}}
+    """
+{% for prop, field in model.properties.items() %}
+    {% if field.type != 'array' -%}
+    {{prop}} = fields.{{field.type.capitalize()}}(
+        string={{repr(field.title)}}
+    )
+    {%- else -%}
+    {{prop}} = fields.{{field.type.capitalize()}}(
+        string={{repr(field.title)}},
+        model={% if field.items.type == 'object' %}{{field.items.path[-1]}}{% else %}fields.{{ field.items.type.capitalize() }}{% endif %}
+    )
+    {%- endif %}
+{% endfor %}

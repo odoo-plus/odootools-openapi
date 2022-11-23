@@ -105,6 +105,10 @@ class Schema(object):
             return self.schema
 
     @property
+    def properties(self):
+        return self.schema.properties
+
+    @property
     def name(self):
         schema_type = self.schema_object
         return schema_type.path[-1]
@@ -275,3 +279,10 @@ class OdooApi(object):
             securities.append(sec)
 
         return securities
+
+    @property
+    def models(self):
+        models = set()
+        for key, controller in self.controllers.items():
+            models = models.union(controller.route_bodies)
+        return models

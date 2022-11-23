@@ -29,6 +29,57 @@ def output_module(api, env, dest_folder):
     with manifest_file.open('w') as fout:
         fout.write("{}")
 
+    output_controllers(api, env, dest_folder)
+    output_models(api, env, dest_folder)
+
+
+def template(template_name):
+    def wrap(func):
+        def proxy(*args, **kwargs):
+            def render(env, filename):
+                res = func(*args, **kwargs)
+                ctx = get_rendering_context()
+
+                if res:
+                    ctx.update(res)
+
+                template = env.get_template(template_name)
+                with Path(filename).open('w') as fout:
+                    fout.write(template.render(**ctx))
+
+            return render
+        return proxy
+    return wrap
+
+
+@template('api_model_init.jinja2')
+def render_model_init(api):
+    return {
+        "api": api,
+    }
+
+
+@template('api_model.jinja2')
+def render_model(api, model):
+    return {
+        "api": api,
+        "model": model
+    }
+
+
+def output_models(api, env, dest_folder):
+    models_folder = dest_folder / 'models'
+    models_folder.mkdir(exist_ok=True)
+
+    render_model_init(api)(
+        env, models_folder / '__init__.py'
+    )
+
+    for model in api.models:
+        render_model(api, model)(
+            env, models_folder / f"{model.name.lower()}.py"
+        )
+
 
 def output_controllers(api, env, dest_folder):
     controllers_folder = dest_folder / 'controllers'
@@ -68,4 +119,3 @@ def openapi(url, path, destination):
     dest_folder.mkdir(exist_ok=True, parents=True)
 
     output_module(api, env, dest_folder)
-    output_controllers(api, env, dest_folder)
