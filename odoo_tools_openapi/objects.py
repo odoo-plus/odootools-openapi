@@ -296,3 +296,11 @@ class OdooApi(object):
                     models.add(model)
 
         return models
+
+    @property
+    def title(self):
+        return self.api.info.title
+
+    @property
+    def description(self):
+        return self.api.info.description
