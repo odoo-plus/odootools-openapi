@@ -1,8 +1,7 @@
-from odoo.http import route, Controller
-from odoo_tools_openapi.http import request
+from odoo_tools_openapi.odoo.http import request, route, Controller
 
 {% for body in controller.route_bodies -%}
-from ..api_models import {{body.name.lower()}} import {{body.name}}
+from ..api_models.{{body.name.lower()}} import {{body.name}}
 {% endfor %}
 
 class {{controller.name.capitalize()}}(Controller):
@@ -15,8 +14,8 @@ class {{controller.name.capitalize()}}(Controller):
         methods={{[route.method.upper()] | pprint}},
         csrf={{route.csrf | pprint}},
         type={{route.type | pprint}}{% if route.auth %},{% endif %}
-    {% if route.auth -%}
-        auth={{repr(route.auth)}},
+        {% if route.auth -%}
+            auth={{repr(route.auth)}},
     {% endif -%}
     )
     def {{route._route.operationId}}(self{% for param in route.path_params.keys() %}, {{param}}{% endfor %}):
