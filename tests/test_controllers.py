@@ -111,6 +111,7 @@ def test_controllers_parsed(basic_document):
     assert route.params == {}
     assert route.csrf is False
     assert route.type == 'plainjson'
+    assert route.error_body is None
 
     route2 = project_ctl.routes[1]
 

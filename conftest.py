@@ -1,3 +1,1 @@
-from tests.fixtures import (
-    basic_document
-)
+from tests.fixtures import *

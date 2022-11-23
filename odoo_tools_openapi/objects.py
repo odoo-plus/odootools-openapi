@@ -181,7 +181,10 @@ class Route(object):
 
     @property
     def response_body(self):
-        schema = self._route.responses[200].content['application/json'].schema
+        responses = self._route.responses
+        if 200 not in responses:
+            return None
+        schema = responses[200].content['application/json'].schema
         return Schema(self.api, schema)
 
     @property
@@ -191,6 +194,10 @@ class Route(object):
     @property
     def error_body(self):
         responses = self._route.responses
+
+        if 'default' not in responses:
+            return None
+
         schema = responses['default'].content['application/json'].schema
         return Schema(self.api, schema)
 

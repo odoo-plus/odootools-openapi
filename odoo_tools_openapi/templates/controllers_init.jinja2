@@ -1,0 +1,3 @@
+{% for key, controller in api.controllers.items() %}
+from .{{key}} import {{key.capitalize()}}
+{% endfor %}
