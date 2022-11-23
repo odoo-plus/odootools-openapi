@@ -19,12 +19,8 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         "openapi3",
-        "toml",
         "requests",
-        "packaging",
-        "six>=1.12.0",
         "click",
-        "pip>=10.0",
     ],
     extras_require={
         "docs": [
