@@ -43,4 +43,5 @@ def get_environment():
 def get_rendering_context():
     return {
         "repr": repr,
+        "len": len,
     }

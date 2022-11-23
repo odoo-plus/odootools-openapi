@@ -1,0 +1,12 @@
+{
+    "name": {{api.title | pprint}},
+    "summary": {{api.description | pprint}},
+    "depends": [
+        "base",
+    ],
+    "external_dependencies": {
+        "python": ["odoo-tools-openapi"],
+    },
+    "installable": True,
+    "application": False,
+}

@@ -21,16 +21,11 @@ def get_document(url, path):
 
 
 def output_module(api, env, dest_folder):
-    init_file = dest_folder / '__init__.py'
-    with init_file.open('w') as fout:
-        fout.write("""from . import controllers""")
+    render_manifest(api)(env, dest_folder / '__manifest__.py')
+    render_module_init()(env, dest_folder / '__init__.py')
 
-    manifest_file = dest_folder / '__manifest__.py'
-    with manifest_file.open('w') as fout:
-        fout.write("{}")
-
-    output_controllers(api, env, dest_folder)
     output_models(api, env, dest_folder)
+    output_controllers(api, env, dest_folder)
 
 
 def template(template_name):
@@ -52,6 +47,19 @@ def template(template_name):
     return wrap
 
 
+@template('module_init.jinja2')
+def render_module_init():
+    return {
+    }
+
+
+@template('manifest.jinja2')
+def render_manifest(api):
+    return {
+        "api": api,
+    }
+
+
 @template('api_model_init.jinja2')
 def render_model_init(api):
     return {
@@ -67,8 +75,23 @@ def render_model(api, model):
     }
 
 
+@template('controllers_init.jinja2')
+def render_ctl_init(api):
+    return {
+        "api": api
+    }
+
+
+@template('controllers2.jinja2')
+def render_ctl_controller(api, controller):
+    return {
+        "api": api,
+        "controller": controller
+    }
+
+
 def output_models(api, env, dest_folder):
-    models_folder = dest_folder / 'models'
+    models_folder = dest_folder / 'api_models'
     models_folder.mkdir(exist_ok=True)
 
     render_model_init(api)(
@@ -84,25 +107,16 @@ def output_models(api, env, dest_folder):
 def output_controllers(api, env, dest_folder):
     controllers_folder = dest_folder / 'controllers'
     controllers_folder.mkdir(exist_ok=True)
-    controllers_init = controllers_folder / '__init__.py'
 
-    controllers_tpl = env.get_template('controllers2.jinja2')
-    controllers_init_tpl = env.get_template('controllers_init.jinja2')
-
-    ctx = get_rendering_context()
-    ctx['api'] = api
-    with controllers_init.open('w') as fout:
-        fout.write(controllers_init_tpl.render(**ctx))
+    render_ctl_init(api)(env, controllers_folder / '__init__.py')
 
     for key, controller in api.controllers.items():
-        ctx = get_rendering_context()
-        ctx['api'] = api
-        ctx['controller'] = controller
+        if len(controller.routes) == 0:
+            continue
 
-        controller_file = controllers_folder / f"{key}.py"
-
-        with controller_file.open('w') as fout:
-            fout.write(controllers_tpl.render(**ctx))
+        render_ctl_controller(api, controller)(
+            env, controllers_folder / f"{key}.py"
+        )
 
 
 @click.command()

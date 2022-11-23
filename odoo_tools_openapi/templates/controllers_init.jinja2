@@ -1,3 +1,5 @@
 {% for key, controller in api.controllers.items() -%}
+{% if len(controller.routes) > 0 -%}
 from . import {{key}}
+{%- endif %}
 {% endfor %}

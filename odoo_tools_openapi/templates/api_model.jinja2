@@ -13,7 +13,12 @@ class {{model.name}}(ApiModel):
     {%- else -%}
     {{prop}} = fields.{{field.type.capitalize()}}(
         string={{repr(field.title)}},
-        model={% if field.items.type == 'object' %}{{field.items.path[-1]}}{% else %}fields.{{ field.items.type.capitalize() }}{% endif %}
+        model=
+        {%- if field.items.type == 'object' -%}
+            {{field.items.path[-1]}}
+        {%- else -%}
+            fields.{{ field.items.type.capitalize() }}
+        {%- endif %}
     )
     {%- endif %}
 {% endfor %}

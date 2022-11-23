@@ -94,6 +94,10 @@ class Schema(object):
         self.schema = schema
 
     @property
+    def items_schema(self):
+        return Schema(self.api, self.schema.items)
+
+    @property
     def is_array(self):
         return self.schema.type == 'array'
 
@@ -283,6 +287,12 @@ class OdooApi(object):
     @property
     def models(self):
         models = set()
+
         for key, controller in self.controllers.items():
-            models = models.union(controller.route_bodies)
+            for model in controller.route_bodies:
+                if model.is_array:
+                    models.add(model.items_schema)
+                else:
+                    models.add(model)
+
         return models
