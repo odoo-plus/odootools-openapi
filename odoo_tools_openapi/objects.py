@@ -288,12 +288,8 @@ class OdooApi(object):
     def models(self):
         models = set()
 
-        for key, controller in self.controllers.items():
-            for model in controller.route_bodies:
-                if model.is_array:
-                    models.add(model.items_schema)
-                else:
-                    models.add(model)
+        for schema in self.api.components.schemas.values():
+            models.add(Schema(self, schema))
 
         return models
 
