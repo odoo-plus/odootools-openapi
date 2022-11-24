@@ -43,22 +43,21 @@ class CustomModule(types.ModuleType):
 
 
 class OdooCustomLoader(Loader):
-    def __init__(self, finder, odoo_module, odoo_version):
+    def __init__(self, finder, odoo_version):
         super().__init__()
         self.finder = finder
-        self.odoo_module = odoo_module
         self.odoo_version = odoo_version
 
     def create_module(self, spec):
+        odoo_module = spec.name.replace(self.finder.base_module_replace, '')
         module = CustomModule(spec.name)
         module.__path__ = []
         module.__odoo_version__ = self.odoo_version
-        module.__odoo_module__ = importlib.import_module(self.odoo_module)
-        module.__patch_module__ = self.find_override_module(spec)
+        module.__odoo_module__ = importlib.import_module(odoo_module)
+        module.__patch_module__ = self.find_override_module(odoo_module)
         return module
 
-    def find_override_module(self, spec):
-
+    def find_override_module(self, odoo_module):
         obj = None
 
         mod_name_template = "{}._odoo.{}.{}"
@@ -67,20 +66,18 @@ class OdooCustomLoader(Loader):
         versionned = mod_name_template.format(
             base_mod,
             f"v{self.odoo_version}",
-            self.odoo_module
+            odoo_module
         )
         common = mod_name_template.format(
             base_mod,
             "common",
-            self.odoo_module
+            odoo_module
         )
 
         for mod_name in [versionned, common]:
             try:
                 obj = importlib.import_module(mod_name)
                 break
-            #except ImportError:
-            #    pass
             except ModuleNotFoundError:
                 pass
 
@@ -103,17 +100,14 @@ class CustomOdooModuleFinder(MetaPathFinder):
         except ImportError:
             self.odoo_version = None
 
+        self.loader = OdooCustomLoader(self, self.odoo_version)
+
     def find_spec(self, fullname, path, target=None):
         if fullname.startswith(self.base_odoo):
-            odoo_import = fullname.replace(self.base_module_replace, '')
             try:
                 return importlib.machinery.ModuleSpec(
                     fullname,
-                    OdooCustomLoader(
-                        self,
-                        odoo_import,
-                        self.odoo_version
-                    )
+                    self.loader,
                 )
             except ImportError as exc:
                 pass
