@@ -7,12 +7,18 @@ from importlib.abc import Loader, MetaPathFinder
 
 class CustomModule(types.ModuleType):
     def __getattr__(self, name):
+        if name in ['__odoo_module__', '__patch_module__']:
+            raise AttributeError(
+                f"Couldn't load {name} from {self.__name__}"
+            )
+
         if hasattr(self.__odoo_module__, name):
             obj = getattr(self.__odoo_module__, name)
             if self.__is_odoo_module(obj):
-                raise AttributeError(
-                    f"Couldn't load {name} from {self.__name__}"
+                return importlib.import_module(
+                    f"{self.__prefix__}{obj.__name__}"
                 )
+
         return self.__load_odoo_property(name)
 
     def __is_odoo_module(self, obj):
@@ -43,19 +49,48 @@ class CustomModule(types.ModuleType):
 
 
 class OdooCustomLoader(Loader):
-    def __init__(self, finder, odoo_version):
+    def __init__(self, finder, odoo_version, preload=False):
         super().__init__()
         self.finder = finder
         self.odoo_version = odoo_version
+        self.preload = preload
 
     def create_module(self, spec):
         odoo_module = spec.name.replace(self.finder.base_module_replace, '')
+
         module = CustomModule(spec.name)
         module.__path__ = []
+        module.__prefix__ = self.finder.base_module_replace
         module.__odoo_version__ = self.odoo_version
         module.__odoo_module__ = importlib.import_module(odoo_module)
         module.__patch_module__ = self.find_override_module(odoo_module)
-        return module
+
+        if not self.preload:
+            return module
+
+    # def preload_attributes(self):
+    #     attrs = set(dir(module))
+
+    #     inherited_mods = []
+
+    #     if module.__patch_module__:
+    #         inherited_mods.append(module.__patch_module__)
+
+    #     if module.__odoo_module__:
+    #         inherited_mods.append(module.__odoo_module__)
+
+    #     for mod in inherited_mods:
+    #         mod_attrs = set(dir(mod))
+    #         missing_attrs = mod_attrs.difference(attrs)
+    #         attrs = attrs.union(mod_attrs)
+    #         for attr in missing_attrs:
+    #             val = getattr(mod, attr)
+    #             # Ignore imported module but should reimport odoo modules
+    #             # this namespace
+    #             if not isinstance(val, types.ModuleType):
+    #                 setattr(module, attr, getattr(mod, attr))
+
+    #     return module
 
     def find_override_module(self, odoo_module):
         obj = None
@@ -104,13 +139,25 @@ class CustomOdooModuleFinder(MetaPathFinder):
 
     def find_spec(self, fullname, path, target=None):
         if fullname.startswith(self.base_odoo):
-            try:
-                return importlib.machinery.ModuleSpec(
-                    fullname,
-                    self.loader,
-                )
-            except ImportError as exc:
-                pass
+            return importlib.machinery.ModuleSpec(
+                fullname,
+                self.loader,
+            )
+
+
+def find_odoo_hooks():
+    found_hooks = []
+    for hook in sys.meta_path:
+        if isinstance(hook, CustomOdooModuleFinder):
+            found_hooks.append(hook)
+    return found_hooks
+
+
+def remove_odoo_hooks():
+    to_remove = find_odoo_hooks()
+
+    for finder in to_remove:
+        sys.meta_path.remove(finder)
 
 
 def initialize_odoo_hooks():
