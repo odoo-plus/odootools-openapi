@@ -33,6 +33,15 @@ def test_remove_init_hooks():
 
 
 def test_custom_module():
+    odoo_mod = ModuleMock.new()
+    odoo_mod.__package__ = 'odoo'
+    odoo_mod.__name__ = 'odoo'
+    sys.modules['odoo'] = odoo_mod
+
+    odoo_mod_m = ModuleMock.new()
+    odoo_mod_m.__package__ = 'odoo'
+    odoo_mod_m.__name__ = 'odoo.modules'
+    sys.modules['odoo.modules'] = odoo_mod_m
 
     odoo_module = ModuleMock.new()
     odoo_module.__package__ = 'odoo.modules'
@@ -102,5 +111,5 @@ def test_custom_module():
         importlib.import_module('odoo_tools_openapi.odoo.modules.fun')
 
     with pytest.raises(ModuleNotFoundError):
-        from odoo_tools_openapi.odoo.modules import fun
+        from odoo_tools_openapi.odoo.modules.extra import fun
         assert fun is not None
