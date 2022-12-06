@@ -7,8 +7,6 @@ from importlib.abc import Loader, MetaPathFinder
 
 class CustomModule(types.ModuleType):
     def __getattr__(self, name):
-        if name == 'pickle':
-            import pdb; pdb.set_trace()
 
         if name == '__all__':
             if not hasattr(self.__odoo_module__, name):
@@ -30,15 +28,11 @@ class CustomModule(types.ModuleType):
                 )
 
         try:
-            #if name == 'get_encodings':
-            #    import pdb; pdb.set_trace()
             value = self.__get_odoo_property(name)
             setattr(self, name, value)
             return value
         except AttributeError as exc:
             raise
-
-        # return self.__load_odoo_property(name)
 
     def __is_odoo_module(self, obj):
         if not isinstance(obj, types.ModuleType):
@@ -197,9 +191,6 @@ class OdooCustomLoader2(Loader):
     def preload_attributes(self, module):
         attrs = set(dir(module))
 
-        #if module.__name__ == 'odoo.tools.cache':
-        #    import pdb; pdb.set_trace()
-
         inherited_mods = []
 
         if module.__patch_module__:
@@ -258,7 +249,6 @@ class OdooCustomLoader2(Loader):
     def exec_module(self, module):
         pass
 
-import pdb
 
 class FakeOdooLoader(MetaPathFinder):
     def __init__(self, base_module, base_path):
@@ -274,15 +264,11 @@ class FakeOdooLoader(MetaPathFinder):
 
     def find_spec(self, fullname, path, target=None):
 
-        if fullname.startswith(self.base_module) or fullname == self.base_module:
+        if fullname.startswith(self.base_module_replace) or fullname == self.base_module:
             return importlib.machinery.ModuleSpec(
                 fullname,
                 self.loader
             )
-            # return importlib.util.spec_from_file_location(
-            #    fullname,
-            #    base_path
-            # )
 
 
 
