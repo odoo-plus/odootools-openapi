@@ -21,8 +21,6 @@ class NamespaceLoader(Loader):
         pass
 
 
-
-
 class StackedModule(types.ModuleType):
     # def __setattr__(self, name, value):
     #    if isinstance(value, StackedModule):
@@ -331,14 +329,26 @@ class AddonsFinder(MetaPathFinder):
                 self.loader
             )
     
+class Application(object):
+    def __init__(self, module_finders):
+        self.module_finders = module_finders
+
+    def add_module_finders(self):
+        for finder in self.module_finders[::-1]:
+            sys.meta_path.insert(0, finder)
+
+    def prepare(self):
+        self.add_module_finders()
+
 
 def initialize_odoo_hooks():
     odoo_spec = importlib.util.find_spec('odoo')
 
-    if odoo_spec:
-
-        sys.meta_path.insert(
-            0,
+    app = Application(
+        module_finders=[
+            AddonsFinder([
+                '/home/llacroix/work2/projects/odootools_rest/odoo_tools_openapi/venv/lib/python3.8/site-packages/odoo/addons'
+            ]),
             StackedModuleFinder(
                 'odoo',
                 odoo_spec.submodule_search_locations[0],
@@ -350,11 +360,7 @@ def initialize_odoo_hooks():
                     "odoo_tools_openapi._odoo.common",
                 ]
             )
-        )
+        ]
+    )
 
-        sys.meta_path.insert(
-            0,
-            AddonsFinder([
-                '/home/llacroix/work2/projects/odootools_rest/odoo_tools_openapi/venv/lib/python3.8/site-packages/odoo/addons'
-            ])
-        )
+    app.prepare()
