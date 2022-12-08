@@ -2,14 +2,19 @@ import json
 import logging
 import werkzeug
 
-from odoo_tools_openapi.odoo.http import Response, JsonRequest
-from odoo_tools_openapi.odoo.tools import date_utils
+from odoo import http
+from odoo.http import Response, JsonRequest as JR
+from odoo.tools import date_utils
 
 
 _logger = logging.getLogger(__name__)
 
 
-class PlainJsonRequest(JsonRequest):
+class JsonRequest(JR):
+    pass
+
+
+class PlainJsonRequest(JR):
 
     def __init__(self, *args):
         super().__init__(*args)
