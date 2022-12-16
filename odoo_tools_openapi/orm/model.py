@@ -51,6 +51,19 @@ class PropertyLister(object):
         return properties
 
 
+class FromOdoo(PropertyLister):
+
+    @classmethod
+    def from_odoo(cls, other):
+        obj = cls()
+
+        for prop in cls.properties:
+            if hasattr(other, prop):
+                setattr(obj, prop, getattr(other, prop))
+
+        return obj
+
+
 class JsonSerializable(PropertyLister):
 
     @classmethod
@@ -69,7 +82,7 @@ class JsonSerializable(PropertyLister):
         return data
 
 
-class ApiModel(JsonSerializable, MetaModel):
+class ApiModel(FromOdoo, JsonSerializable, MetaModel):
     subclasses = defaultdict(list)
 
     def __init_subclass__(cls, **kwargs):

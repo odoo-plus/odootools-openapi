@@ -1,4 +1,10 @@
-from odoo_tools_rest.orm import fields, ApiModel
+from odoo_tools_openapi.orm import fields, ApiModel
+
+{% for prop, field in model.properties.items() %}
+{% if field.type == 'array' and field.items.type == 'object' %}
+from .{{field.items.path[-1].lower()}} import {{field.items.path[-1]}}
+{% endif %}
+{% endfor %}
 
 
 class {{model.name}}(ApiModel):

@@ -1,5 +1,7 @@
 class BaseField(property):
-    def __init__(self):
+    def __init__(self, string):
+        self.__label = string
+
         super().__init__(
             BaseField.__get__,
             BaseField.__set__,

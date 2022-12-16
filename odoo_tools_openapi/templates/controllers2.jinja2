@@ -1,4 +1,4 @@
-from odoo_tools_openapi.odoo.http import request, route, Controller
+from odoo.http import request, route, Controller
 
 {% for body in controller.route_bodies -%}
 from ..api_models.{{body.name.lower()}} import {{body.name}}
