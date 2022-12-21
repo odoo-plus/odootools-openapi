@@ -21,6 +21,7 @@ setuptools.setup(
         "openapi3",
         "requests",
         "click",
+        "jinja2",
     ],
     extras_require={
         "docs": [

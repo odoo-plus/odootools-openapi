@@ -1,11 +1,10 @@
 from odoo_tools_openapi.orm import fields, ApiModel
 
-{% for prop, field in model.properties.items() %}
-{% if field.type == 'array' and field.items.type == 'object' %}
+{% for prop, field in model.properties.items() -%}
+{%- if field.type == 'array' and field.items.type == 'object' -%}
 from .{{field.items.path[-1].lower()}} import {{field.items.path[-1]}}
-{% endif %}
+{% endif -%}
 {% endfor %}
-
 
 class {{model.name}}(ApiModel):
     """
