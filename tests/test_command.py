@@ -1,6 +1,6 @@
 import yaml
 from mock import patch, MagicMock
-from odoo_tools_openapi.command import get_document, openapi
+from odootools_openapi.command import get_document, openapi
 
 
 def test_get_document_path(basic_document, simple_routes, tmp_path):
@@ -27,7 +27,7 @@ def test_get_document_url(basic_document, simple_routes, tmp_path):
     with document_file.open('w') as fout:
         fout.write(doc_txt)
 
-    with patch('odoo_tools_openapi.command.requests') as req:
+    with patch('odootools_openapi.command.requests') as req:
         response = MagicMock()
         response.content = doc_txt
         req.get = lambda url: response

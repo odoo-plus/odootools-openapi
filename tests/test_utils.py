@@ -1,4 +1,4 @@
-from odoo_tools_openapi.utils import map_type, iter_attrib
+from odootools_openapi.utils import map_type, iter_attrib
 
 
 def test_map_type_known_type():
