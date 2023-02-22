@@ -1,7 +1,7 @@
 import pytest
 from jinja2 import Environment, TemplateNotFound
-from odoo_tools_openapi.rendering import Loader
-from odoo_tools_openapi.rendering import get_environment
+from odootools_openapi.rendering import Loader
+from odootools_openapi.rendering import get_environment
 
 
 def test_loader(tmp_path):

@@ -1,4 +1,4 @@
-from odoo_tools_openapi.objects import Parameters
+from odootools_openapi.objects import Parameters
 from mock import MagicMock
 
 

@@ -1,4 +1,4 @@
-from odoo_tools_openapi.orm import fields, ApiModel
+from odootools_openapi.orm import fields, ApiModel
 
 {% for prop, field in model.properties.items() -%}
 {%- if field.type == 'array' and field.items.type == 'object' -%}

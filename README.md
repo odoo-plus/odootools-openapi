@@ -83,7 +83,7 @@ Example API:
 
 Result controller:
 
-    from odoo_tools_openapi.odoo.http import request, route, Controller
+    from odootools_openapi.odoo.http import request, route, Controller
 
     from ..api_models.apiresult import ApiResult
 

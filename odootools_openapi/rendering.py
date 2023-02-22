@@ -30,7 +30,7 @@ class Loader(BaseLoader):
 
 def get_environment():
     loader = ChoiceLoader([
-        PackageLoader('odoo_tools_openapi', 'templates'),
+        PackageLoader('odootools_openapi', 'templates'),
     ])
 
     env = Environment(

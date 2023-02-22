@@ -1,5 +1,5 @@
 import yaml
-from odoo_tools_openapi.objects import OdooApi
+from odootools_openapi.objects import OdooApi
 
 tags = """
 components:

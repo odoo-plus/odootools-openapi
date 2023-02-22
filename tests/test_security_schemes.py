@@ -1,7 +1,7 @@
 import yaml
 # from openapi3 import OpenAPI
-# from odoo_tools_openapi.api import get_security_schemes
-from odoo_tools_openapi.objects import OdooApi
+# from odootools_openapi.api import get_security_schemes
+from odootools_openapi.objects import OdooApi
 
 routes = """
 components:

@@ -1,16 +1,18 @@
-from odoo_tools_openapi.orm.model import ApiModel, PropertyLister, JsonSerializable, MetaModel, DataStore
-from odoo_tools_openapi.orm.fields import String
+from odootools_openapi.orm.model import (
+    ApiModel, PropertyLister, JsonSerializable, DataStore
+)
+from odootools_openapi.orm.fields import String
 
 
 def test_model_properties_empty():
     NewModel = type('NM1', (PropertyLister,), {})
     assert NewModel.properties == set()
 
-    prop1 = String()
-    prop2 = String()
-    prop3 = String()
-    prop4 = String()
-    prop5 = String()
+    prop1 = String("1")
+    prop2 = String("2")
+    prop3 = String("3")
+    prop4 = String("4")
+    prop5 = String("5")
 
     props = {
         "a": prop1,
@@ -49,8 +51,8 @@ def test_model_properties_empty():
 
 
 def test_json_serializer_parse():
-    prop1 = String()
-    prop2 = String()
+    prop1 = String("1")
+    prop2 = String("2")
 
     props = {
         "a": prop1,
@@ -71,8 +73,8 @@ def test_json_serializer_parse():
 
 
 def test_json_serializer_to_json():
-    prop1 = String()
-    prop2 = String()
+    prop1 = String("1")
+    prop2 = String("2")
 
     props = {
         "a": prop1,
@@ -93,8 +95,8 @@ def test_json_serializer_to_json():
 
 
 class test_api_model():
-    prop1 = String()
-    prop2 = String()
+    prop1 = String("a")
+    prop2 = String("b")
 
     props = {
         "a": prop1,
@@ -110,5 +112,5 @@ class test_api_model():
     assert obj._values.get('a') == "fun"
     del obj.a
     assert hasattr(obj, 'a')
-    assert obj.a == None
+    assert obj.a is None
     assert obj._values.get('a') is None
